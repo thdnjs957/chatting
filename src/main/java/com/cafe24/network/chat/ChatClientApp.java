@@ -13,7 +13,7 @@ public class ChatClientApp {
 	public static void main(String[] args) {
 		String name = null;
 		Scanner scanner = new Scanner(System.in);
-
+		int mode = 0;
 		while( true ) {
 			
 			System.out.println("닉네임>>>");
@@ -38,7 +38,7 @@ public class ChatClientApp {
 			pw.println("join "+name);
 			pw.flush();
 			
-			new ChatWindow(name,socket).show(); 
+			new ChatWindow(name,socket,mode).show(); 
 			
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

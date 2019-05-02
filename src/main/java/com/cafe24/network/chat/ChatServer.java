@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -17,12 +18,13 @@ public class ChatServer {
 	public static void main(String[] args) {
 		
 		ServerSocket serverSocket = null;
+		HashMap<String,Writer> map = new HashMap<String, Writer>();
+		
 		
 		try {
 			//1. 서버소켓 생성
 			serverSocket = new ServerSocket();
 			
-			//데이터 많은 경우는 User객체가 괜춘
 			List<Writer> pw_list = new ArrayList<Writer>();
 			
 			serverSocket.setReuseAddress(true);
@@ -34,7 +36,7 @@ public class ChatServer {
 			while(true) {//다시 돌아가야함 thread에게 socket 전달하고  
 				//3. accept, //accept 하면 socket이 하나 튀어나옴
 				Socket socket = serverSocket.accept();
-				Thread thread = new ChatServerThread(socket,pw_list);
+				Thread thread = new ChatServerThread(socket,pw_list,map);
 				thread.start();
 			}
 			

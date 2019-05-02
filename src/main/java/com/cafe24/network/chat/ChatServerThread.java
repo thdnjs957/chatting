@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatServerThread extends Thread {
@@ -18,9 +19,11 @@ public class ChatServerThread extends Thread {
 	private List<Writer> pw_list = null;
     private BufferedReader br = null;
     private PrintWriter pw = null;
-	public ChatServerThread(Socket socket, List<Writer> pw_list) {
+    HashMap<String,Writer> map = null;
+    public ChatServerThread(Socket socket, List<Writer> pw_list,HashMap<String,Writer> map) {
 		this.socket = socket;
 		this.pw_list = pw_list;
+		this.map = map;
 	}
 
 	@Override
@@ -48,11 +51,14 @@ public class ChatServerThread extends Thread {
 					break;
 				}
 
+				
 				// 프로토콜 분석
 				String[] tokens = data.split(" "); // " "을 기준으로 처리
-
+				String real_name=null;
+				System.out.println("토큰 길이는" + tokens.length);
+				
 				for (String t : tokens) {
-					System.out.println("token 출력" + t);
+					System.out.println("token 출력 : " + t);
 				}
 
 				if ("join".equals(tokens[0])) {
@@ -64,14 +70,23 @@ public class ChatServerThread extends Thread {
 
 				} else if ("quit".equals(tokens[0])) {
 					doQuit(pw);
-
-				} 
-     			 else { ChatServer.log("에러 : 알 수 없는 요청(" + tokens[0] + ")"); }
-					 
+					
+				} else if("whisper".equals(tokens[0])){ //  whisper :/소원              
+														// whisper :안녕 소원 store_name(소원)
+					if(tokens.length > 2) { //이미 연결돼서 store_name이 붙어 있는 것
+						real_name = tokens[tokens.length-1]; 
+						doWhisperChat(real_name,pw,tokens);
+					}
+					else { // 처음 연결 시도 하는
+						real_name = tokens[1].substring(2); 
+						doWhisper(real_name,pw);
+					}
+				}
+     			else { ChatServer.log("에러 : 알 수 없는 요청(" + tokens[0] + ")"); }
 			}
-
+	
 		} catch (SocketException e) {
-			System.out.println("[server] sudden closed by client");
+			System.out.println("[server] 연결이 끊겼습니다.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -93,10 +108,29 @@ public class ChatServerThread extends Thread {
 		broadcast(data);
 
 		addWriter(writer);
+		map.put(nickname, pw);
+		System.out.println(map);
+	}
+	
+	private void doWhisper(String nickname, Writer writer) {
+		this.nickname = nickname;
+		String data = nickname + "님과 귓속말 시작합니다. 귓속말을 종료하고 싶으면 esc를 누르세요";
 		
+		PrintWriter pw = (PrintWriter) map.get(nickname);
+		pw.println(data);
+		pw.flush();
 		
 	}
-
+	
+	private void doWhisperChat(String nickname, Writer writer,String[] tokens) {
+		String data = tokens[1];
+		PrintWriter pw = (PrintWriter) map.get(nickname);
+		pw.println(data);
+		pw.flush();
+		
+	}
+	
+	
 	private void addWriter(Writer writer) {
 		synchronized (pw_list) {
 			pw_list.add(writer);
@@ -115,7 +149,6 @@ public class ChatServerThread extends Thread {
 				PrintWriter printWriter = (PrintWriter) writer;
 				printWriter.println(data);
 				printWriter.flush();
-
 			}
 		}
 	}
@@ -126,7 +159,7 @@ public class ChatServerThread extends Thread {
 
 	private void doQuit(Writer writer) {
 		String data = nickname + "님이 퇴장하셨습니다.";
-		// 다른 writer들에게 전송!
+
 		broadcast(data);
 
 		removeWriter(writer);

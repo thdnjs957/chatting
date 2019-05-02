@@ -28,8 +28,9 @@ public class ChatWindow {
 	private TextField textField;
 	private TextArea textArea;
 	private Socket socket;
-
-	public ChatWindow(String name, Socket socket) {
+	private int mode ;
+	
+	public ChatWindow(String name, Socket socket,int mode) {
 		frame = new Frame(name);
 		pannel = new Panel();
 		buttonSend = new Button("Send");
@@ -37,6 +38,7 @@ public class ChatWindow {
 		textArea = new TextArea(30, 80);
 		
 		this.socket = socket;
+		this.mode = mode;
 
 		new ChatClientReceiveClass(socket).start();
 	}
@@ -93,6 +95,7 @@ public class ChatWindow {
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
 			String request = "quit";
+			
 			pw.println(request);
 			System.exit(0);
 		}
@@ -102,15 +105,34 @@ public class ChatWindow {
 	
 	}
 
+	String store_name = null;
+	
 	// 대화 보내기
 	private void sendMessage() {
 		PrintWriter pw;
 		try {
 			pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
-			String message = textField.getText();
 			
-			pw.println("message :" + message);
+			String message = textField.getText(); 
+			String whisper_start_mark = null;
+			
+			if(mode == 0) {//아직 whisper 연결 안함
+				whisper_start_mark = message.substring(0,1); // -> / 
+				
+				if("/".equals(whisper_start_mark)) { // -> /소원
+					mode = 1;//귓속말 모드 표시
+					store_name = message.substring(1);
+					pw.println("whisper :" + message); 
+				}
 
+				pw.println("message :" + message);//그냥 일반 채팅
+				
+			}
+			else {//mode가 1이 돼서 whisper 연결 되면
+				pw.println("whisper :" + message + " " + store_name); //   whisper :안녕 소원 store_name(소원)
+				
+			}
+			
 			textField.setText("");
 			textField.requestFocus();
 			
@@ -118,12 +140,44 @@ public class ChatWindow {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
+	
 	private class ChatClientReceiveClass extends Thread {
 		
 		Socket socket = null;
-
+		
 		ChatClientReceiveClass(Socket socket) {
+			this.socket = socket;
+		}
+
+		public void run() {
+			try {
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(socket.getInputStream(), "utf-8"));
+				while (true) {
+					
+					String message = br.readLine();
+					if("quit".equals(message)) {
+						//귓속말 종료
+						mode = 0;
+					}
+					
+					textArea.append(message+"\n");
+					
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+private class ChatClientWhisperClass extends Thread {
+
+		Socket socket = null;
+
+		ChatClientWhisperClass(Socket socket) {
 			this.socket = socket;
 		}
 
@@ -134,7 +188,6 @@ public class ChatWindow {
 				while (true) {
 					String message = br.readLine();
 					textArea.append(message+"\n");
-					//textArea.append("\n");
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
