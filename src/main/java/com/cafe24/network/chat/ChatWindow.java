@@ -172,27 +172,4 @@ public class ChatWindow {
 		}
 	}
 	
-	
-private class ChatClientWhisperClass extends Thread {
 
-		Socket socket = null;
-
-		ChatClientWhisperClass(Socket socket) {
-			this.socket = socket;
-		}
-
-		public void run() {
-			try {
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(socket.getInputStream(), "utf-8"));
-				while (true) {
-					String message = br.readLine();
-					textArea.append(message+"\n");
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-}
