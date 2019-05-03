@@ -36,7 +36,7 @@ public class ChatClientApp {
 			PrintWriter pw = new PrintWriter( 
 					new OutputStreamWriter( socket.getOutputStream(), "utf-8"), true );
 			
-			pw.println("join "+name);
+			pw.println("join-"+name);
 			pw.flush();
 			
 			new ChatWindow(name,socket,mode).show(); 

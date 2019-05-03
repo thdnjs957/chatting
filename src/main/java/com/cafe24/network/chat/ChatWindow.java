@@ -74,7 +74,6 @@ public class ChatWindow {
 			}
 		});
 		
-		
 
 		// Pannel
 		pannel.setBackground(Color.LIGHT_GRAY);
@@ -97,7 +96,6 @@ public class ChatWindow {
 		});
 		
 
-		
 		frame.setVisible(true);
 		frame.pack();
 	}
@@ -132,20 +130,20 @@ public class ChatWindow {
 			String whisper_start_mark = null;
 			
 			if(mode == 0) {//아직 whisper 연결 안함
-				whisper_start_mark = message.substring(0,1); // -> / 
+				whisper_start_mark = message.substring(0,1); //
 				
 				if("/".equals(whisper_start_mark)) { // -> /소원
 					mode = 1;//귓속말 모드 표시
 					store_name = message.substring(1);
-					pw.println("whisper :" + message); 
+					pw.println("whisper-:" + message); 
 				}
 
-				pw.println("message :" + message);//그냥 일반 채팅
+				pw.println("message-:" + message);//그냥 일반 채팅
 				
 			}
 			
 			else {//mode가 1이 돼서 whisper 연결 되면
-				pw.println("whisper :" + message + " " + store_name); //   whisper :안녕 소원 store_name(소원)
+				pw.println("whisper-:" + message + "-" + store_name); //   whisper :안녕 소원 store_name(소원)
 				
 				if("quit".contentEquals(message)) {
 					pw.println("귓속말이 종료되었습니다.");

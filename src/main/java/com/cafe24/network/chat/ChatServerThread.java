@@ -53,7 +53,7 @@ public class ChatServerThread extends Thread {
 
 				
 				// 프로토콜 분석
-				String[] tokens = data.split(" "); // " "을 기준으로 처리
+				String[] tokens = data.split("-"); // "`"을 기준으로 처리
 				String real_name=null;
 				System.out.println("토큰 길이는" + tokens.length);
 				
@@ -66,12 +66,7 @@ public class ChatServerThread extends Thread {
 
 				} else if ("message".equals(tokens[0])) {
 					
-					String message = tokens[1]; 
-					
-					for(int i = 2;i<tokens.length;i++) {
-						message += tokens[i];
-					}
-					doMessage(message);
+					doMessage(tokens[1]);
 
 				} else if ("quit".equals(tokens[0])) {
 					doQuit(pw);
