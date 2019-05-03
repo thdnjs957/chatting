@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -28,7 +29,7 @@ public class ChatWindow {
 	private TextField textField;
 	private TextArea textArea;
 	private Socket socket;
-	private int mode ;
+	private int mode;
 	
 	public ChatWindow(String name, Socket socket,int mode) {
 		frame = new Frame(name);
@@ -64,9 +65,16 @@ public class ChatWindow {
 				if (keyCode == KeyEvent.VK_ENTER) {
 					sendMessage();
 				}
+				
+				if(mode == 1 && keyCode == 27) {
+					System.out.println("귓속말이 종료되었습니다.");
+					mode = 0;
+				}
+				
 			}
-
 		});
+		
+		
 
 		// Pannel
 		pannel.setBackground(Color.LIGHT_GRAY);
@@ -84,10 +92,17 @@ public class ChatWindow {
 			public void windowClosing(WindowEvent e) {
 				finish(); 
 			}
+			
+	
 		});
+		
+
+		
 		frame.setVisible(true);
 		frame.pack();
 	}
+	
+
 
 	private void finish() {
 		
@@ -128,9 +143,15 @@ public class ChatWindow {
 				pw.println("message :" + message);//그냥 일반 채팅
 				
 			}
+			
 			else {//mode가 1이 돼서 whisper 연결 되면
 				pw.println("whisper :" + message + " " + store_name); //   whisper :안녕 소원 store_name(소원)
 				
+				if("quit".contentEquals(message)) {
+					pw.println("귓속말이 종료되었습니다.");
+					mode = 0;
+				}
+								
 			}
 			
 			textField.setText("");
@@ -158,11 +179,6 @@ public class ChatWindow {
 				while (true) {
 					
 					String message = br.readLine();
-					if("quit".equals(message)) {
-						//귓속말 종료
-						mode = 0;
-					}
-					
 					textArea.append(message+"\n");
 					
 				}
@@ -171,5 +187,5 @@ public class ChatWindow {
 			}
 		}
 	}
-	
+}
 

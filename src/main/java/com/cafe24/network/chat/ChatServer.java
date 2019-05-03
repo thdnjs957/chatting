@@ -20,7 +20,6 @@ public class ChatServer {
 		ServerSocket serverSocket = null;
 		HashMap<String,Writer> map = new HashMap<String, Writer>();
 		
-		
 		try {
 			//1. 서버소켓 생성
 			serverSocket = new ServerSocket();

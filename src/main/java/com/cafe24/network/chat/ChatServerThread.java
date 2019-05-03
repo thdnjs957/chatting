@@ -65,8 +65,13 @@ public class ChatServerThread extends Thread {
 					doJoin(tokens[1], pw);
 
 				} else if ("message".equals(tokens[0])) {
-
-					doMessage(tokens[1]);
+					
+					String message = tokens[1]; 
+					
+					for(int i = 2;i<tokens.length;i++) {
+						message += tokens[i];
+					}
+					doMessage(message);
 
 				} else if ("quit".equals(tokens[0])) {
 					doQuit(pw);
